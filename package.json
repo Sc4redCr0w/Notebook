@@ -1,11 +1,25 @@
 {
+  "name": "aws-notebook-app",
+  "version": "1.0.0",
+  "description": "Production-grade AWS S3 and DynamoDB Notebook Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1072.0",
     "@aws-sdk/client-s3": "^3.1070.0",
+    "@aws-sdk/client-sqs": "^3.1072.0",
     "@aws-sdk/lib-dynamodb": "^3.1072.0",
+    "@google/generative-ai": "^0.21.0",
+    "bcryptjs": "^2.4.3",
+    "chromadb": "^1.9.4",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "multer": "^2.2.0"
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.2.0",
+    "pdf-parse": "^1.1.1"
   }
 }

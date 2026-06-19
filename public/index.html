@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notebook App - Dashboard</title>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0d0b14 0%, #15102a 50%, #06020f 100%);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --primary-glow: #7c4dff;
+            --accent-glow: #00e5ff;
+            --text-color: #f1f0f7;
+            --text-muted: #9fa0b9;
+            --success-color: #00e676;
+            --error-color: #ff1744;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 30px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Ambient glowing circles */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            filter: blur(150px);
+            z-index: 0;
+            opacity: 0.25;
+            pointer-events: none;
+        }
+
+        body::before {
+            top: -100px;
+            left: -100px;
+            background: var(--primary-glow);
+        }
+
+        body::after {
+            bottom: -150px;
+            right: -100px;
+            background: var(--accent-glow);
+        }
+
+        .dashboard-container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Header Styling */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            padding: 20px 30px;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-glow), var(--accent-glow));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .logo h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .user-panel {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .user-info span {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: rgba(255, 23, 68, 0.1);
+            border: 1px solid rgba(255, 23, 68, 0.3);
+            border-radius: 8px;
+            color: var(--error-color);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: var(--error-color);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(255, 23, 68, 0.3);
+        }
+
+        /* Layout Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* General Card styles */
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select, input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        select:focus, input[type="file"]:focus {
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 10px rgba(124, 77, 255, 0.2);
+        }
+
+        select option {
+            background: #110e20;
+            color: #fff;
+        }
+
+        /* Custom File Input Container */
+        .file-upload-wrapper {
+            position: relative;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, var(--primary-glow), #a07eff);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(124, 77, 255, 0.2);
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(124, 77, 255, 0.4);
+            background: linear-gradient(90deg, #8c60ff, #b394ff);
+        }
+
+        .btn-action:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Status Toast inside card */
+        .status-box {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        .status-box.info {
+            display: block;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            color: var(--accent-glow);
+        }
+
+        .status-box.success {
+            display: block;
+            background: rgba(0, 230, 118, 0.1);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+            color: var(--success-color);
+        }
+
+        .status-box.error {
+            display: block;
+            background: rgba(255, 23, 68, 0.1);
+            border: 1px solid rgba(255, 23, 68, 0.3);
+            color: var(--error-color);
+        }
+
+        /* Table & Lists View */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            font-weight: 500;
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-color);
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .badge-folder {
+            padding: 4px 8px;
+            background: rgba(124, 77, 255, 0.15);
+            border: 1px solid rgba(124, 77, 255, 0.3);
+            border-radius: 4px;
+            color: #b394ff;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .s3-key-cell {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Refresh list button */
+        .btn-refresh {
+            background: none;
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: auto;
+        }
+
+        .btn-refresh:hover {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.02);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <div class="logo-icon">N</div>
+                <h1>Notebook Portal</h1>
+            </div>
+            <div class="user-panel">
+                <a href="chat.html" style="color: var(--accent-glow); margin-right: 20px; text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">AI Chat Assistant</a>
+                <div class="user-info">Logged in as: <span id="displayUsername">User</span></div>
+                <button class="btn-logout" onclick="logout()">Log Out</button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <div class="dashboard-grid">
+            <!-- Sidebar Panel: Upload -->
+            <div class="card">
+                <div class="card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-upload-cloud"><polyline points="16 16 12 12 8 16"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path><polyline points="16 16 12 12 8 16"></polyline></svg>
+                    Upload Document
+                </div>
+
+                <div class="form-group">
+                    <label for="folderSelect">Destination Folder</label>
+                    <select id="folderSelect">
+                        <option value="">Loading folders...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pdfFile">Select PDF File</label>
+                    <input type="file" id="pdfFile" accept=".pdf">
+                </div>
+
+                <button class="btn-action" id="btnUpload" onclick="uploadPDF()">Upload to S3</button>
+
+                <div id="statusBox" class="status-box"></div>
+            </div>
+
+            <!-- Main Files List Panel -->
+            <div class="card">
+                <div class="card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path></svg>
+                    Uploaded Notebook Files
+                    <button class="btn-refresh" onclick="loadFilesList()">
+                        Refresh Data
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Filename</th>
+                                <th>Folder</th>
+                                <th>Uploaded By</th>
+                                <th>Uploaded At</th>
+                                <th>S3 Key</th>
+                            </tr>
+                        </thead>
+                        <tbody id="filesTableBody">
+                            <tr>
+                                <td colspan="5" class="empty-state">Loading file entries...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication status
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+
+        if (!token) {
+            window.location.href = "login.html";
+        } else {
+            document.getElementById("displayUsername").innerText = userId || "Active User";
+        }
+
+        // Clean user token & logout
+        function logout() {
+            localStorage.removeItem("token");
+            localStorage.removeItem("userId");
+            window.location.href = "login.html";
+        }
+
+        // Show standard message block inside upload container
+        function showStatus(message, type) {
+            const statusBox = document.getElementById("statusBox");
+            statusBox.innerText = message;
+            statusBox.className = `status-box ${type}`;
+        }
+
+        // Fetch S3 directories
+        async function loadFolders() {
+            try {
+                const response = await fetch("/folders", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    logout();
+                    return;
+                }
+
+                const folders = await response.json();
+                const dropdown = document.getElementById("folderSelect");
+                dropdown.innerHTML = "";
+
+                if (folders.length === 0) {
+                    const opt = document.createElement("option");
+                    opt.value = "default";
+                    opt.textContent = "default";
+                    dropdown.appendChild(opt);
+                } else {
+                    folders.forEach(folder => {
+                        const option = document.createElement("option");
+                        option.value = folder;
+                        option.textContent = folder;
+                        dropdown.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+                showStatus("Failed to load folders", "error");
+            }
+        }
+
+        // Retrieve and format file entries from DynamoDB scan
+        async function loadFilesList() {
+            const tableBody = document.getElementById("filesTableBody");
+
+            try {
+                const response = await fetch("/files", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    logout();
+                    return;
+                }
+
+                const files = await response.json();
+                tableBody.innerHTML = "";
+
+                if (files.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="5" class="empty-state">No files uploaded yet.</td></tr>`;
+                    return;
+                }
+
+                // Sort files by date descending
+                files.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+
+                files.forEach(file => {
+                    const row = document.createElement("tr");
+
+                    // Format date nicely
+                    let dateStr = "N/A";
+                    if (file.uploadedAt) {
+                        const date = new Date(file.uploadedAt);
+                        dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    row.innerHTML = `
+                        <td title="${file.filename || ''}"><strong>${file.filename || 'Unknown'}</strong></td>
+                        <td><span class="badge-folder">${file.folder || 'Root'}</span></td>
+                        <td>${file.uploadedBy || 'system'}</td>
+                        <td>${dateStr}</td>
+                        <td class="s3-key-cell" title="${file.s3Key || ''}">${file.s3Key || ''}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error(error);
+                tableBody.innerHTML = `<tr><td colspan="5" class="empty-state" style="color:var(--error-color)">Failed to retrieve database records.</td></tr>`;
+            }
+        }
+
+        // Upload PDF via JWT authenticated multi-part request
+        async function uploadPDF() {
+            const fileInput = document.getElementById("pdfFile");
+            const file = fileInput.files[0];
+            const folder = document.getElementById("folderSelect").value;
+            const btnUpload = document.getElementById("btnUpload");
+
+            if (!file) {
+                showStatus("Please select a PDF file first.", "error");
+                return;
+            }
+
+            if (!folder) {
+                showStatus("Please select a destination folder.", "error");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("pdf", file);
+            formData.append("folder", folder);
+
+            btnUpload.disabled = true;
+            showStatus("Uploading...", "info");
+
+            try {
+                const response = await fetch("/upload", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    showStatus("Session expired. Please log in again.", "error");
+                    setTimeout(logout, 2000);
+                    return;
+                }
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showStatus("Upload successful!", "success");
+                    fileInput.value = ""; // Clear input
+                    // Refresh data
+                    await loadFilesList();
+                } else {
+                    showStatus(result.message || result.error || "Upload failed", "error");
+                    btnUpload.disabled = false;
+                }
+            } catch (error) {
+                console.error(error);
+                showStatus("Upload failed: Connection error", "error");
+                btnUpload.disabled = false;
+            }
+        }
+
+        // Setup on page initialization
+        window.addEventListener("DOMContentLoaded", () => {
+            loadFolders();
+            loadFilesList();
+        });
+    </script>
+</body>
+</html>
