@@ -135,4 +135,6 @@ PORT=3000
   - Body: `{"question": "What is Docker?", "scope": "all"}`
   - Scope: `"all"` (search all documents) or `"mine"` (search only current user's uploads).
 * **`POST /debug-search`**: Returns matching chunks and similarity scores without running LLM synthesis (protected).
-  - Body: `{"question": "What is deadlock?"}`
+   - Body: `{"question": "What is deadlock?"}`
+
+Visit the application at http://54.172.16.31:3000/
