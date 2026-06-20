@@ -24,4 +24,5 @@ jobs:
 
             npm install
 
-            pm2 restart notebook || pm2 start server.js --name notebook
+            pm2 restart notebook-server || pm2 start server.js --name notebook-server
+            pm2 restart notebook-worker || pm2 start worker.js --name notebook-worker
