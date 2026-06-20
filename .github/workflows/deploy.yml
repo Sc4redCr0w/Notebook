@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to Amazon Linux EC2
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -22,7 +22,10 @@ jobs:
 
             git pull origin main
 
-            npm install
+            npm install --legacy-peer-deps
 
             pm2 restart notebook-server || pm2 start server.js --name notebook-server
+
             pm2 restart notebook-worker || pm2 start worker.js --name notebook-worker
+
+            pm2 save
