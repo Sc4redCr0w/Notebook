@@ -59,7 +59,7 @@ flowchart TD
     Cascade -->|Index Vectors & Metadata| DB[(ChromaDB / JSON Fallback)]
     
     %% RAG Query Flow
-    User[User Chat UI] -->|Question| API[/chat /debug-search]
+    User[User Chat UI] -->|Question| API["/chat & /debug-search"]
     API -->|Embed Query| Cascade
     Cascade -->|Cosine Similarity Search| DB
     DB -->|Top Context Chunks| Orchestrator[RAG Orchestrator]
