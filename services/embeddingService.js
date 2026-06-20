@@ -1,41 +1,63 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const path = require("path");
 
-const apiKey = process.env.GEMINI_API_KEY;
+let extractor = null;
 
-if (!apiKey) {
-  console.warn("WARNING: GEMINI_API_KEY is not defined in the environment variables.");
-} else if (!apiKey.startsWith("AIzaSy")) {
-  console.warn("WARNING: GEMINI_API_KEY does not start with the standard 'AIzaSy' prefix. This key is likely invalid for Google AI Studio.");
+async function getLocalExtractor() {
+  if (!extractor) {
+    const { pipeline } = await import("@huggingface/transformers");
+    // Xenova/all-MiniLM-L6-v2 is standard and runs locally using ONNX runtime
+    extractor = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
+  }
+  return extractor;
 }
 
-const genAI = new GoogleGenerativeAI(apiKey || "DUMMY_KEY");
-
 /**
- * Generate embedding vector using Gemini Embedding API (text-embedding-004)
+ * Generate embedding vector using Ollama (nomic-embed-text) or local HuggingFace (all-MiniLM-L6-v2) fallback
  * @param {string} text - The input text content to embed
  * @returns {Promise<number[]>} - The vector representation of the text
  */
 async function generateEmbedding(text) {
-  if (!apiKey || !apiKey.startsWith("AIzaSy")) {
-    throw new Error("GEMINI_API_KEY is missing or invalid. Google AI Studio API keys must start with the prefix 'AIzaSy'. Please generate one at aistudio.google.com and update your .env file.");
-  }
-
   if (!text || typeof text !== "string") {
     throw new Error("Text content must be a non-empty string to generate embeddings");
   }
 
+  // 1. Attempt using local Ollama model (nomic-embed-text)
   try {
-    const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
-    const result = await model.embedContent(text);
-    
-    if (result && result.embedding && result.embedding.values) {
-      return result.embedding.values;
-    } else {
-      throw new Error("Embed API returned an empty or invalid structure");
+    const response = await fetch("http://localhost:11434/api/embed", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "nomic-embed-text",
+        input: text,
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.embeddings && data.embeddings[0]) {
+        console.log(`[Embedding Service] Successfully generated embedding of length ${data.embeddings[0].length} using Ollama (nomic-embed-text)`);
+        return data.embeddings[0];
+      }
     }
-  } catch (error) {
-    console.error("Gemini Embedding generation error:", error.message);
-    throw new Error(`Failed to generate embeddings: ${error.message}`);
+    throw new Error(`Ollama responded with status: ${response.status}`);
+  } catch (ollamaError) {
+    // 2. Cascade fallback to local ONNX Transformers (all-MiniLM-L6-v2)
+    console.warn(`[Embedding Service] Ollama not available or failed (${ollamaError.message}). Falling back to local all-MiniLM-L6-v2 model...`);
+    try {
+      const localExtractor = await getLocalExtractor();
+      const output = await localExtractor(text, {
+        pooling: "mean",
+        normalize: true,
+      });
+      const embedding = Array.from(output.data);
+      console.log(`[Embedding Service] Successfully generated local embedding of length ${embedding.length} using sentence-transformers (all-MiniLM-L6-v2)`);
+      return embedding;
+    } catch (localError) {
+      console.error("[Embedding Service] Local embedding generation failed:", localError.message);
+      throw new Error(`Failed to generate real semantic embeddings: ${localError.message}`);
+    }
   }
 }
 

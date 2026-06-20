@@ -85,8 +85,8 @@ async function processMessage(msg) {
         throw new Error("No text chunks generated for indexing");
       }
 
-      // 7. Generate embeddings for chunks (sequentially to avoid Gemini rate limits)
-      console.log("[Worker] Generating embeddings with Gemini API...");
+      // 7. Generate embeddings for chunks (sequentially to avoid rate limits)
+      console.log("[Worker] Generating embeddings with embedding service...");
       const embeddings = [];
       for (let i = 0; i < chunks.length; i++) {
         console.log(`[Worker] Generating embedding: chunk ${i + 1}/${chunks.length}`);

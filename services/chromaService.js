@@ -1,32 +1,176 @@
 const { ChromaClient } = require("chromadb");
+const fs = require("fs");
+const path = require("path");
 
 const chromaUrl = process.env.CHROMA_URL || "http://localhost:8000";
 const client = new ChromaClient({ path: chromaUrl });
+
+// Local database path for fallback
+const fallbackDbPath = path.join(__dirname, "..", "chroma_fallback.json");
+
+// Serializing writes to fallback JSON file
+let dbLock = Promise.resolve();
+
+async function readFallbackDb() {
+  try {
+    if (!fs.existsSync(fallbackDbPath)) {
+      return { indexedFiles: [], indexedHashes: [], chunks: [] };
+    }
+    const data = await fs.promises.readFile(fallbackDbPath, "utf8");
+    const parsed = JSON.parse(data || "{}");
+    if (Array.isArray(parsed)) {
+      return { indexedFiles: [], indexedHashes: [], chunks: parsed };
+    }
+    return {
+      indexedFiles: parsed.indexedFiles || [],
+      indexedHashes: parsed.indexedHashes || [],
+      chunks: parsed.chunks || []
+    };
+  } catch (error) {
+    console.error("[Chroma Fallback DB] Error reading database:", error.message);
+    return { indexedFiles: [], indexedHashes: [], chunks: [] };
+  }
+}
+
+async function writeFallbackDb(data) {
+  try {
+    await fs.promises.writeFile(fallbackDbPath, JSON.stringify(data, null, 2), "utf8");
+  } catch (error) {
+    console.error("[Chroma Fallback DB] Error writing database:", error.message);
+  }
+}
+
+function cosineSimilarity(vecA, vecB) {
+  if (!vecA || !vecB || vecA.length !== vecB.length) {
+    return 0;
+  }
+  let dotProduct = 0;
+  let normA = 0;
+  let normB = 0;
+  for (let i = 0; i < vecA.length; i++) {
+    dotProduct += vecA[i] * vecB[i];
+    normA += vecA[i] * vecA[i];
+    normB += vecB[i] * vecB[i];
+  }
+  if (normA === 0 || normB === 0) {
+    return 0;
+  }
+  return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+}
+
+let useChromaFallback = false;
+
+const fallbackCollection = {
+  add: async function({ ids, embeddings, metadatas, documents, s3Key }) {
+    return new Promise((resolve, reject) => {
+      dbLock = dbLock.then(async () => {
+        try {
+          const db = await readFallbackDb();
+          const existingIds = new Set(db.chunks.map(item => item.id));
+          
+          for (let i = 0; i < ids.length; i++) {
+            const id = ids[i];
+            const item = {
+              id,
+              embedding: embeddings[i],
+              metadata: metadatas[i],
+              document: documents[i]
+            };
+            
+            if (existingIds.has(id)) {
+              const index = db.chunks.findIndex(x => x.id === id);
+              if (index !== -1) {
+                db.chunks[index] = item;
+              }
+            } else {
+              db.chunks.push(item);
+            }
+          }
+          
+          // Track file metadata keys and hashes
+          if (s3Key && !db.indexedFiles.includes(s3Key)) {
+            db.indexedFiles.push(s3Key);
+          }
+          const hash = metadatas && metadatas[0] && metadatas[0].hash;
+          if (hash && !db.indexedHashes.includes(hash)) {
+            db.indexedHashes.push(hash);
+          }
+          
+          await writeFallbackDb(db);
+          console.log(`[Chroma Fallback DB] Indexed ${ids.length} chunks locally.`);
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      });
+    });
+  },
+  query: async function({ queryEmbeddings, nResults, where }) {
+    try {
+      const db = await readFallbackDb();
+      let filtered = db.chunks;
+      
+      if (where && typeof where === "object") {
+        filtered = db.chunks.filter(item => {
+          for (const [key, value] of Object.entries(where)) {
+            if (!item.metadata || item.metadata[key] !== value) {
+              return false;
+            }
+          }
+          return true;
+        });
+      }
+      
+      const queryEmbedding = queryEmbeddings ? queryEmbeddings[0] : null;
+      if (!queryEmbedding) {
+        return { ids: [[]], embeddings: [[]], metadatas: [[]], documents: [[]], distances: [[]] };
+      }
+      
+      const scored = filtered.map(item => {
+        const sim = cosineSimilarity(queryEmbedding, item.embedding);
+        return { item, similarity: sim };
+      });
+      
+      scored.sort((a, b) => b.similarity - a.similarity);
+      const top = scored.slice(0, nResults).map(x => x.item);
+      
+      return {
+        ids: [top.map(item => item.id)],
+        embeddings: [top.map(item => item.embedding)],
+        metadatas: [top.map(item => item.metadata)],
+        documents: [top.map(item => item.document)],
+        distances: [scored.slice(0, nResults).map(x => 1 - x.similarity)]
+      };
+    } catch (err) {
+      console.error("[Chroma Fallback DB] Query failed:", err.message);
+      throw err;
+    }
+  }
+};
 
 /**
  * Helper to fetch or initialize the vector collection
  */
 async function getCollection() {
+  if (useChromaFallback) {
+    return fallbackCollection;
+  }
+  
   try {
     return await client.getOrCreateCollection({
       name: "notebook-files",
     });
   } catch (error) {
-    console.error("Error obtaining Chroma collection:", error.message);
-    throw error;
+    console.warn("ChromaDB is not running or unreachable. Falling back to local JSON vector database. Error:", error.message);
+    useChromaFallback = true;
+    return fallbackCollection;
   }
 }
 
 /**
- * Add an array of chunks and their corresponding embeddings into ChromaDB
- * @param {string} hash - SHA256 file hash
- * @param {string} filename - Plain file name
- * @param {string} uploadedBy - Uploader userId
- * @param {string} folder - Target subject folder
- * @param {string[]} chunks - Text chunks
- * @param {number[][]} embeddings - Floating-point embedding vectors
+ * Add an array of chunks and their corresponding embeddings into ChromaDB or fallback
  */
-async function addChunksToCollection(hash, filename, uploadedBy, folder, chunks, embeddings) {
+async function addChunksToCollection(hash, filename, uploadedBy, folder, chunks, embeddings, s3Key = null) {
   if (!chunks || chunks.length === 0) return;
   
   try {
@@ -43,26 +187,32 @@ async function addChunksToCollection(hash, filename, uploadedBy, folder, chunks,
       chunkIndex: index,
     }));
 
-    await collection.add({
-      ids,
-      embeddings,
-      metadatas,
-      documents: chunks,
-    });
+    if (collection === fallbackCollection) {
+      await collection.add({
+        ids,
+        embeddings,
+        metadatas,
+        documents: chunks,
+        s3Key,
+      });
+    } else {
+      await collection.add({
+        ids,
+        embeddings,
+        metadatas,
+        documents: chunks,
+      });
+    }
     
-    console.log(`Successfully indexed ${chunks.length} chunks into Chroma for file: ${filename}`);
+    console.log(`Successfully indexed ${chunks.length} chunks for file: ${filename}`);
   } catch (error) {
-    console.error("Failed to add chunks to ChromaDB:", error.message);
+    console.error("Failed to add chunks to Collection:", error.message);
     throw error;
   }
 }
 
 /**
- * Queries the collection for semantically matching document chunks
- * @param {number[]} queryEmbedding - The embedding vector of the search query
- * @param {number} limit - Maximum results to retrieve (default 5)
- * @param {Object} filter - Metadata filters (e.g. { uploadedBy: "userId" })
- * @returns {Promise<Object>} - ChromaDB query output
+ * Queries the collection or fallback for semantically matching document chunks
  */
 async function queryCollection(queryEmbedding, limit = 5, filter = {}) {
   try {
@@ -81,8 +231,104 @@ async function queryCollection(queryEmbedding, limit = 5, filter = {}) {
     const results = await collection.query(queryParams);
     return results;
   } catch (error) {
-    console.error("ChromaDB query failed:", error.message);
+    console.error("Collection query failed:", error.message);
     throw error;
+  }
+}
+
+/**
+ * Background sync utility that downloads all existing S3 PDFs and indexes them into the local fallback database
+ */
+async function syncExistingS3Files() {
+  console.log("[Sync S3 Fallback] Starting background sync of existing S3 files...");
+  try {
+    const s3Service = require("./s3Service");
+    const embeddingService = require("./embeddingService");
+    const pdfExtractor = require("../utils/pdfExtractor");
+    const chunkText = require("../utils/chunkText");
+    const crypto = require("crypto");
+
+    // 1. Get all files in S3
+    const s3Files = await s3Service.listAllFiles("public/");
+    if (s3Files.length === 0) {
+      console.log("[Sync S3 Fallback] No files found in S3 bucket.");
+      return;
+    }
+
+    // 2. Get currently indexed files in fallback DB
+    const db = await readFallbackDb();
+    const indexedSet = new Set(db.indexedFiles);
+
+    console.log(`[Sync S3 Fallback] S3 files: ${s3Files.length}, Already indexed locally: ${indexedSet.size}`);
+
+    for (const file of s3Files) {
+      if (indexedSet.has(file.s3Key)) {
+        continue;
+      }
+
+      console.log(`[Sync S3 Fallback] Downloading and indexing new file: ${file.s3Key}...`);
+      try {
+        const buffer = await s3Service.downloadFile(file.s3Key);
+        
+        // Compute SHA256 hash of the buffer
+        const hash = crypto.createHash("sha256").update(buffer).digest("hex");
+        
+        // If hash is already indexed, link this s3Key and skip full re-indexing
+        if (db.indexedHashes.includes(hash)) {
+          db.indexedFiles.push(file.s3Key);
+          await writeFallbackDb(db);
+          console.log(`[Sync S3 Fallback] File hash already indexed. Linked s3Key: ${file.s3Key}`);
+          continue;
+        }
+
+        // Extract text
+        const text = await pdfExtractor.extractText(buffer);
+        if (!text || text.trim().length === 0) {
+          console.warn(`[Sync S3 Fallback] Skip ${file.s3Key}: extracted text is empty.`);
+          continue;
+        }
+
+        // Chunk text
+        const chunks = chunkText(text);
+        if (chunks.length === 0) {
+          console.warn(`[Sync S3 Fallback] Skip ${file.s3Key}: no chunks generated.`);
+          continue;
+        }
+
+        // Generate embeddings
+        console.log(`[Sync S3 Fallback] Generating embeddings for ${chunks.length} chunks...`);
+        const embeddings = [];
+        for (const chunk of chunks) {
+          const emb = await embeddingService.generateEmbedding(chunk);
+          embeddings.push(emb);
+        }
+
+        // Add to collection
+        const ids = chunks.map((_, index) => `${hash}_${index}`);
+        const metadatas = chunks.map((_, index) => ({
+          hash,
+          filename: file.filename,
+          uploadedBy: file.uploadedBy || "unknown",
+          folder: file.folder,
+          chunkIndex: index,
+        }));
+
+        await fallbackCollection.add({
+          ids,
+          embeddings,
+          metadatas,
+          documents: chunks,
+          s3Key: file.s3Key
+        });
+
+        console.log(`[Sync S3 Fallback] Successfully indexed: ${file.filename}`);
+      } catch (err) {
+        console.error(`[Sync S3 Fallback] Failed to index file ${file.s3Key}:`, err.message);
+      }
+    }
+    console.log("[Sync S3 Fallback] Background sync completed.");
+  } catch (error) {
+    console.error("[Sync S3 Fallback] Sync process failed:", error.message);
   }
 }
 
@@ -91,4 +337,5 @@ module.exports = {
   getCollection,
   addChunksToCollection,
   queryCollection,
+  syncExistingS3Files,
 };

@@ -9,6 +9,7 @@ const authRoutes = require("./routes/authRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const fileRoutes = require("./routes/fileRoutes");
 const chatRoutes = require("./routes/chatRoutes");
+const chromaService = require("./services/chromaService");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -45,4 +46,11 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Open http://localhost:${PORT} in your browser to view the application.`);
+  
+  // Asynchronously synchronize files from S3 to local fallback database on server start
+  setTimeout(() => {
+    chromaService.syncExistingS3Files().catch((err) => {
+      console.error("[Startup Sync] Fallback database synchronization failed:", err.message);
+    });
+  }, 1000);
 });

@@ -115,7 +115,7 @@ async function triggerInlineIndexing(s3Key, hash) {
     const folder = fileMetadata ? fileMetadata.folder : (s3Key.split("/")[1] || "default");
 
     // 7. Store in Chroma
-    await chromaService.addChunksToCollection(hash, filename, uploadedBy, folder, chunks, embeddings);
+    await chromaService.addChunksToCollection(hash, filename, uploadedBy, folder, chunks, embeddings, s3Key);
 
     // 8. Set to INDEXED
     await updateIndexStatus(hash, "INDEXED");

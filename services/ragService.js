@@ -23,8 +23,8 @@ async function getRAGAnswer(question, userId, scope = "all") {
     filter.uploadedBy = userId;
   }
 
-  // 3. Search top 5 chunks in ChromaDB
-  const results = await chromaService.queryCollection(embedding, 5, filter);
+  // 3. Search top 10 chunks in ChromaDB
+  const results = await chromaService.queryCollection(embedding, 10, filter);
 
   const chunks = (results.documents && results.documents[0]) || [];
   const metadatas = (results.metadatas && results.metadatas[0]) || [];
