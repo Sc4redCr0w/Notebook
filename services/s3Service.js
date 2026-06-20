@@ -69,9 +69,13 @@ async function listAllFiles(prefix = "public/") {
       let folder = "unknown";
       let filename = key;
       let uploadedAt = obj.LastModified ? obj.LastModified.toISOString() : new Date().toISOString();
+      let uploadedBy = "unknown";
 
       if (parts.length >= 3) {
         folder = parts[1];
+        if (parts[0] === "private") {
+          uploadedBy = parts[1];
+        }
         const filePart = parts[2];
         const hyphenIdx = filePart.indexOf("-");
         if (hyphenIdx !== -1) {
@@ -89,7 +93,7 @@ async function listAllFiles(prefix = "public/") {
       return {
         filename,
         folder,
-        uploadedBy: "unknown", // Fallback value when scanning is not permitted
+        uploadedBy,
         uploadedAt,
         s3Key: key,
       };

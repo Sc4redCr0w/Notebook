@@ -389,6 +389,14 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="visibilitySelect">Visibility</label>
+                    <select id="visibilitySelect" onchange="toggleVisibilityFields()">
+                        <option value="public" selected>Public</option>
+                        <option value="private">Private</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="folderGroup">
                     <label for="folderSelect">Destination Folder</label>
                     <select id="folderSelect">
                         <option value="">Loading folders...</option>
@@ -423,12 +431,11 @@
                                 <th>Folder</th>
                                 <th>Uploaded By</th>
                                 <th>Uploaded At</th>
-                                <th>S3 Key</th>
                             </tr>
                         </thead>
                         <tbody id="filesTableBody">
                             <tr>
-                                <td colspan="5" class="empty-state">Loading file entries...</td>
+                                <td colspan="4" class="empty-state">Loading file entries...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -519,7 +526,7 @@
                 tableBody.innerHTML = "";
 
                 if (files.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="5" class="empty-state">No files uploaded yet.</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="4" class="empty-state">No files uploaded yet.</td></tr>`;
                     return;
                 }
 
@@ -541,13 +548,23 @@
                         <td><span class="badge-folder">${file.folder || 'Root'}</span></td>
                         <td>${file.uploadedBy || 'system'}</td>
                         <td>${dateStr}</td>
-                        <td class="s3-key-cell" title="${file.s3Key || ''}">${file.s3Key || ''}</td>
                     `;
                     tableBody.appendChild(row);
                 });
             } catch (error) {
                 console.error(error);
-                tableBody.innerHTML = `<tr><td colspan="5" class="empty-state" style="color:var(--error-color)">Failed to retrieve database records.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="4" class="empty-state" style="color:var(--error-color)">Failed to retrieve database records.</td></tr>`;
+            }
+        }
+
+        // Toggle display of destination folder select based on visibility
+        function toggleVisibilityFields() {
+            const visibility = document.getElementById("visibilitySelect").value;
+            const folderGroup = document.getElementById("folderGroup");
+            if (visibility === "private") {
+                folderGroup.style.display = "none";
+            } else {
+                folderGroup.style.display = "block";
             }
         }
 
@@ -556,6 +573,8 @@
             const fileInput = document.getElementById("pdfFile");
             const file = fileInput.files[0];
             const folder = document.getElementById("folderSelect").value;
+            const visibility = document.getElementById("visibilitySelect").value;
+            const isPublic = visibility === "public";
             const btnUpload = document.getElementById("btnUpload");
 
             if (!file) {
@@ -563,14 +582,17 @@
                 return;
             }
 
-            if (!folder) {
+            if (isPublic && !folder) {
                 showStatus("Please select a destination folder.", "error");
                 return;
             }
 
             const formData = new FormData();
             formData.append("pdf", file);
-            formData.append("folder", folder);
+            formData.append("isPublic", isPublic ? "true" : "false");
+            if (isPublic) {
+                formData.append("folder", folder);
+            }
 
             btnUpload.disabled = true;
             showStatus("Uploading...", "info");

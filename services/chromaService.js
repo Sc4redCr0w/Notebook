@@ -105,7 +105,7 @@ const fallbackCollection = {
       });
     });
   },
-  query: async function({ queryEmbeddings, nResults, where }) {
+  query: async function({ queryEmbeddings, nResults, where, userId }) {
     try {
       const db = await readFallbackDb();
       let filtered = db.chunks;
@@ -118,6 +118,14 @@ const fallbackCollection = {
             }
           }
           return true;
+        });
+      }
+
+      if (userId) {
+        filtered = filtered.filter(item => {
+          const isFilePublic = item.metadata && item.metadata.isPublic !== false;
+          const isOwner = item.metadata && item.metadata.uploadedBy === userId;
+          return isFilePublic || isOwner;
         });
       }
       
@@ -211,10 +219,7 @@ async function addChunksToCollection(hash, filename, uploadedBy, folder, chunks,
   }
 }
 
-/**
- * Queries the collection or fallback for semantically matching document chunks
- */
-async function queryCollection(queryEmbedding, limit = 5, filter = {}) {
+async function queryCollection(queryEmbedding, limit = 5, filter = {}, userId = null) {
   try {
     const collection = await getCollection();
     
@@ -223,9 +228,37 @@ async function queryCollection(queryEmbedding, limit = 5, filter = {}) {
       nResults: limit,
     };
 
-    // Apply where metadata filter if defined
-    if (filter && Object.keys(filter).length > 0) {
+    if (collection === fallbackCollection) {
       queryParams.where = filter;
+      queryParams.userId = userId;
+    } else {
+      // Official ChromaDB query
+      // If a userId is specified and we are NOT looking up a user-specific scope already
+      if (userId && (!filter || !filter.uploadedBy)) {
+        // Enforce OR condition: isPublic !== false OR uploadedBy === userId
+        queryParams.where = {
+          "$or": [
+            { "isPublic": { "$ne": false } },
+            { "uploadedBy": { "$eq": userId } }
+          ]
+        };
+        // If there were other filters, logically combine them using $and
+        if (filter && Object.keys(filter).length > 0) {
+          queryParams.where = {
+            "$and": [
+              filter,
+              {
+                "$or": [
+                  { "isPublic": { "$ne": false } },
+                  { "uploadedBy": { "$eq": userId } }
+                ]
+              }
+            ]
+          };
+        }
+      } else if (filter && Object.keys(filter).length > 0) {
+        queryParams.where = filter;
+      }
     }
 
     const results = await collection.query(queryParams);
@@ -249,7 +282,7 @@ async function syncExistingS3Files() {
     const crypto = require("crypto");
 
     // 1. Get all files in S3
-    const s3Files = await s3Service.listAllFiles("public/");
+    const s3Files = await s3Service.listAllFiles("");
     if (s3Files.length === 0) {
       console.log("[Sync S3 Fallback] No files found in S3 bucket.");
       return;

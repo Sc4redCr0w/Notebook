@@ -26,6 +26,7 @@ async function uploadPDF(req, res) {
     const file = req.file;
     const folder = req.body.folder;
     const userId = req.user.userId;
+    const isPublic = req.body.isPublic === undefined || req.body.isPublic === "true" || req.body.isPublic === true;
 
     if (!file) {
       return res.status(400).json({
@@ -34,10 +35,10 @@ async function uploadPDF(req, res) {
       });
     }
 
-    if (!folder) {
+    if (isPublic && !folder) {
       return res.status(400).json({
         success: false,
-        error: "Folder is required",
+        error: "Folder is required for public files",
       });
     }
 
@@ -56,9 +57,18 @@ async function uploadPDF(req, res) {
       });
     }
 
-    // Construct the unique S3 Key
+    // Construct the unique S3 Key and folder
     const timestamp = Date.now();
-    const key = `public/${folder}/${timestamp}-${file.originalname}`;
+    let key;
+    let finalFolder;
+
+    if (isPublic) {
+      finalFolder = folder;
+      key = `public/${finalFolder}/${timestamp}-${file.originalname}`;
+    } else {
+      finalFolder = userId;
+      key = `private/${userId}/${timestamp}-${file.originalname}`;
+    }
 
     // Upload to S3
     await s3Service.uploadFile(key, file.buffer, file.mimetype);
@@ -67,10 +77,11 @@ async function uploadPDF(req, res) {
     const metadata = {
       hash,
       filename: file.originalname,
-      folder,
+      folder: finalFolder,
       uploadedBy: userId,
       uploadedAt: new Date().toISOString(),
       s3Key: key,
+      isPublic: isPublic,
     };
     await dynamoService.saveFileMetadata(metadata);
 

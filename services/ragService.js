@@ -24,7 +24,7 @@ async function getRAGAnswer(question, userId, scope = "all") {
   }
 
   // 3. Search top 10 chunks in ChromaDB
-  const results = await chromaService.queryCollection(embedding, 10, filter);
+  const results = await chromaService.queryCollection(embedding, 10, filter, userId);
 
   const chunks = (results.documents && results.documents[0]) || [];
   const metadatas = (results.metadatas && results.metadatas[0]) || [];

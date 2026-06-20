@@ -46,11 +46,13 @@ async function debugSearch(req, res) {
       });
     }
 
+    const userId = req.user.userId;
+
     console.log(`[Debug Search] Generating embedding for question: "${question}"...`);
     const embedding = await embeddingService.generateEmbedding(question);
 
     console.log(`[Debug Search] Querying database for top 5 matches...`);
-    const results = await chromaService.queryCollection(embedding, 5);
+    const results = await chromaService.queryCollection(embedding, 5, {}, userId);
 
     const chunks = (results.documents && results.documents[0]) || [];
     const distances = (results.distances && results.distances[0]) || [];
