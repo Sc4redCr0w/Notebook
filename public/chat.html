@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,6 +34,7 @@
             background: var(--bg-gradient);
             color: var(--text-color);
             min-height: 100vh;
+            padding: 30px;
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
@@ -40,7 +42,8 @@
         }
 
         /* Ambient background decorations */
-        body::before, body::after {
+        body::before,
+        body::after {
             content: '';
             position: absolute;
             width: 400px;
@@ -68,124 +71,250 @@
             position: relative;
             z-index: 10;
             max-width: 1200px;
-            width: 100%;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
             flex-grow: 1;
-            padding: 25px;
             gap: 20px;
         }
 
-        /* Navigation Header */
-        header {
+        /* New Premium Navigation Styles */
+        .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            padding: 15px 30px;
+            padding: 14px 28px;
             border-radius: 16px;
             box-shadow: var(--card-shadow);
+            margin-bottom: 25px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        .logo {
+        .navbar-brand {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .logo-icon {
-            width: 32px;
-            height: 32px;
+        .brand-icon {
+            width: 36px;
+            height: 36px;
             background: linear-gradient(135deg, var(--primary-glow), var(--accent-glow));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(124, 77, 255, 0.35);
+        }
+
+        .brand-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #fff;
+        }
+
+        .navbar-menu {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 600;
             border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item svg {
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav-item:hover svg {
+            transform: scale(1.1);
+        }
+
+        .nav-item.active {
+            color: #fff;
+            background: linear-gradient(135deg, rgba(124, 77, 255, 0.2), rgba(0, 229, 255, 0.1));
+            border: 1px solid rgba(124, 77, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(124, 77, 255, 0.1);
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.1rem;
-            color: #fff;
+            color: var(--accent-glow);
+            font-size: 1rem;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
         }
 
-        .logo h1 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+        .user-details {
+            display: flex;
+            flex-direction: column;
         }
 
-        .nav-links {
+        .user-details .username {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .navbar-user .btn-logout {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 20px;
-        }
-
-        .nav-btn {
-            color: var(--text-color);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .nav-btn:hover {
-            color: var(--accent-glow);
-        }
-
-        .btn-logout {
-            padding: 8px 16px;
-            background: rgba(255, 23, 68, 0.1);
-            border: 1px solid rgba(255, 23, 68, 0.3);
-            border-radius: 8px;
+            justify-content: center;
+            padding: 0;
+            background: rgba(255, 23, 68, 0.08);
+            border: 1px solid rgba(255, 23, 68, 0.25);
             color: var(--error-color);
             cursor: pointer;
-            font-weight: 500;
-            font-size: 0.85rem;
             transition: all 0.3s ease;
         }
 
-        .btn-logout:hover {
+        .navbar-user .btn-logout:hover {
             background: var(--error-color);
             color: #fff;
+            box-shadow: 0 4px 12px rgba(255, 23, 68, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* Mobile Bottom Navigation Bar */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(13, 11, 20, 0.7);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-top: 1px solid var(--glass-border);
+            padding: 8px 15px 22px 15px;
+            /* bottom padding accounts for iOS safe area */
+            z-index: 9999;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex-grow: 1;
+            padding: 6px 0;
+            border-radius: 8px;
+        }
+
+        .mobile-nav-item span {
+            font-size: 0.72rem;
+            font-weight: 500;
+        }
+
+        .mobile-nav-item:hover {
+            color: #fff;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--accent-glow);
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+        }
+
+        .mobile-nav-item.logout {
+            color: rgba(255, 23, 68, 0.7);
+        }
+
+        .mobile-nav-item.logout:hover {
+            color: var(--error-color);
         }
 
         /* Workspace Layout Grid */
         .workspace-grid {
             display: grid;
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: 1fr;
             gap: 20px;
             flex-grow: 1;
         }
 
-        @media (max-width: 850px) {
-            .workspace-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         @media (max-width: 650px) {
             body {
-                padding: 15px;
+                padding: 12px;
+                padding-bottom: 90px;
             }
-            header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-                padding: 15px 20px;
+
+            .navbar {
+                padding: 10px 18px;
+                border-radius: 12px;
+                margin-bottom: 15px;
             }
-            .nav-links {
-                flex-direction: column;
-                gap: 10px;
-                width: 100%;
-                align-items: center;
+
+            .navbar-menu,
+            .navbar-user {
+                display: none;
             }
+
+            .mobile-nav {
+                display: flex;
+            }
+
             .message-bubble {
                 max-width: 90%;
             }
+
             .chat-container {
                 padding: 10px 0;
+            }
+
+            .chat-card {
+                height: calc(100vh - 220px);
             }
         }
 
@@ -266,7 +395,8 @@
             box-shadow: var(--card-shadow);
             display: flex;
             flex-direction: column;
-            height: 600px;
+            height: calc(100vh - 180px);
+            min-height: 500px;
             overflow: hidden;
         }
 
@@ -285,6 +415,102 @@
             background: var(--success-color);
             border-radius: 50%;
             box-shadow: 0 0 8px var(--success-color);
+        }
+
+        /* Settings Overlay & Modal Popup */
+        .settings-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(5, 3, 10, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        @keyframes fadeInOverlay {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Convert controls-card into modal wrapper */
+        .settings-overlay .controls-card {
+            width: 90%;
+            max-width: 420px;
+            position: relative;
+            background: rgba(20, 15, 38, 0.95);
+            border: 1px solid rgba(124, 77, 255, 0.25);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(124, 77, 255, 0.15);
+            animation: slideInModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideInModal {
+            from {
+                transform: translateY(30px) scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 10px;
+        }
+
+        .btn-close-modal {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .btn-close-modal:hover {
+            color: var(--error-color);
+        }
+
+        /* Settings Button inside Chat Header */
+        .btn-settings {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: auto;
+            /* Aligns to the right side of header */
+        }
+
+        .btn-settings:hover {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            transform: rotate(45deg);
         }
 
         /* Message feed viewport */
@@ -308,8 +534,15 @@
         }
 
         @keyframes popIn {
-            from { opacity: 0; transform: scale(0.95) translateY(5px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
 
         /* User Message Bubble */
@@ -427,61 +660,83 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="chat-container">
-        <!-- Header -->
-        <header>
-            <div class="logo">
-                <div class="logo-icon">N</div>
-                <h1>AI Chat Assistant</h1>
+        <!-- Unified Navbar -->
+        <nav class="navbar">
+            <div class="navbar-brand">
+                <div class="brand-icon">N</div>
+                <span class="brand-name">Notebook Portal</span>
             </div>
-            <div class="nav-links">
-                <a href="index.html" class="nav-btn">Upload Dashboard</a>
-                <button class="btn-logout" onclick="logout()">Log Out</button>
+            <div class="navbar-menu">
+                <a href="index.html" class="nav-item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="feather feather-folder">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="chat.html" class="nav-item active">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    AI Assistant
+                </a>
             </div>
-        </header>
+            <div class="navbar-user">
+                <div class="user-avatar" id="avatarDisplay">U</div>
+                <div class="user-details">
+                    <span class="username" id="displayUsername">Username</span>
+                </div>
+                <button class="btn-logout" onclick="logout()" title="Log Out">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+        </nav>
 
         <!-- Workspace Layout -->
         <div class="workspace-grid">
-            <!-- Sidebar Panel -->
-            <div class="controls-card">
-                <div class="controls-title">Chat Settings</div>
-                
-                <div class="form-group">
-                    <label for="scopeSelect">Retrieval Scope</label>
-                    <select id="scopeSelect">
-                        <option value="all">All Notes</option>
-                        <option value="mine">My Notes Only</option>
-                    </select>
-                </div>
-
-                <div class="user-status-text">
-                    <p>Current User: <span id="userIdDisplay">User</span></p>
-                    <p style="margin-top: 8px; font-size: 0.8rem; line-height: 1.4;">
-                        Select <strong>My Notes</strong> to only query contexts extracted from your uploaded notebooks.
-                    </p>
-                </div>
-            </div>
-
             <!-- Chat Window -->
             <div class="chat-card">
                 <div class="chat-card-header">
                     <div class="active-dot"></div>
                     <div>Groq Llama-3.3 Model Connected</div>
+                    <button class="btn-settings" id="btnSettings" onclick="openSettings()" title="Chat Settings">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="feather feather-settings">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z">
+                            </path>
+                        </svg>
+                    </button>
                 </div>
 
                 <!-- Messages -->
                 <div class="chat-messages" id="chatMessages">
                     <div class="empty-chat" id="emptyChatPlaceholder">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            class="feather feather-message-square">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
                         <p>Ask a question about the uploaded notebooks to begin the semantic chat pipeline.</p>
                     </div>
                 </div>
 
                 <!-- Input bar -->
                 <div class="chat-input-bar">
-                    <input type="text" id="chatInput" placeholder="Type your question..." onkeydown="handleInputKeydown(event)">
+                    <input type="text" id="chatInput" placeholder="Type your question..."
+                        onkeydown="handleInputKeydown(event)">
                     <button class="btn-send" id="btnSend" onclick="sendChat()">Ask AI</button>
                 </div>
             </div>
@@ -496,6 +751,10 @@
             window.location.href = "login.html";
         } else {
             document.getElementById("userIdDisplay").innerText = userId || "Active User";
+            document.getElementById("displayUsername").innerText = userId || "Active User";
+            if (userId) {
+                document.getElementById("avatarDisplay").innerText = userId.charAt(0).toUpperCase();
+            }
         }
 
         function logout() {
@@ -587,6 +846,74 @@
                 inputField.focus();
             }
         }
+
+        function openSettings() {
+            document.getElementById("settingsOverlay").style.display = "flex";
+        }
+
+        function closeSettings() {
+            document.getElementById("settingsOverlay").style.display = "none";
+        }
+
+        function handleOverlayClick(event) {
+            if (event.target === document.getElementById("settingsOverlay")) {
+                closeSettings();
+            }
+        }
     </script>
+    <!-- Settings Modal Overlay -->
+    <div id="settingsOverlay" class="settings-overlay" onclick="handleOverlayClick(event)">
+        <!-- Sidebar Panel / Modal -->
+        <div class="controls-card">
+            <div class="modal-header-container">
+                <div class="controls-title"
+                    style="border-bottom: none; margin-bottom: 0; padding-bottom: 0; color: #fff;">Chat Settings</div>
+                <button class="btn-close-modal" onclick="closeSettings()">&times;</button>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+                <label for="scopeSelect">Retrieval Scope</label>
+                <select id="scopeSelect" onchange="closeSettings()">
+                    <option value="all" selected>All Notes</option>
+                    <option value="mine">My Notes Only</option>
+                </select>
+            </div>
+
+            <div class="user-status-text" style="margin-top: 15px;">
+                <p>Current User: <span id="userIdDisplay">User</span></p>
+                <p style="margin-top: 8px; font-size: 0.8rem; line-height: 1.4;">
+                    Select <strong>My Notes</strong> to only query contexts extracted from your uploaded notebooks.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Nav Bar -->
+    <nav class="mobile-nav">
+        <a href="index.html" class="mobile-nav-item">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-folder">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>Dashboard</span>
+        </a>
+        <a href="chat.html" class="mobile-nav-item active">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>AI Chat</span>
+        </a>
+        <a href="#" onclick="logout()" class="mobile-nav-item logout">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Logout</span>
+        </a>
+    </nav>
 </body>
+
 </html>
