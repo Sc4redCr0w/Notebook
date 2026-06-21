@@ -284,25 +284,74 @@
             flex-grow: 1;
         }
 
+        .navbar-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .navbar-toggle:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
         @media (max-width: 650px) {
             body {
                 padding: 12px;
-                padding-bottom: 90px;
+                padding-bottom: 20px;
             }
 
             .navbar {
                 padding: 10px 18px;
                 border-radius: 12px;
                 margin-bottom: 15px;
+                position: relative;
             }
 
-            .navbar-menu,
+            .navbar-toggle {
+                display: block;
+            }
+
+            .navbar-menu {
+                display: none;
+                position: absolute;
+                top: 65px;
+                left: 0;
+                right: 0;
+                background: rgba(20, 15, 38, 0.98);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid var(--glass-border);
+                flex-direction: column;
+                padding: 15px;
+                gap: 10px;
+                align-items: stretch;
+                border-radius: 12px;
+                box-shadow: var(--card-shadow);
+                z-index: 9999;
+            }
+
+            .navbar-menu.active {
+                display: flex !important;
+            }
+
+            .nav-item {
+                padding: 10px;
+                justify-content: center;
+                background: rgba(255, 255, 255, 0.02);
+            }
+
             .navbar-user {
                 display: none;
             }
 
             .mobile-nav {
-                display: flex;
+                display: none !important;
             }
 
             .message-bubble {
@@ -669,7 +718,11 @@
             <div class="navbar-brand" onclick="window.location.href='index.html'" style="cursor:pointer;">
                 <span class="brand-name">notebook</span>
             </div>
-            <div class="navbar-menu">
+            <!-- Hamburger Menu Button -->
+            <button class="navbar-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div class="navbar-menu" id="nav-auth">
                 <a href="index.html" class="nav-item">Home</a>
                 <a href="explore.html" class="nav-item">Explore Notes</a>
                 <a href="dashboard.html" class="nav-item">Dashboard</a>
@@ -746,6 +799,13 @@
             const avatarDisplayEl = document.getElementById("avatarDisplay");
             if (avatarDisplayEl && userId) {
                 avatarDisplayEl.innerText = userId.charAt(0).toUpperCase();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const authMenu = document.getElementById("nav-auth");
+            if (authMenu) {
+                authMenu.classList.toggle("active");
             }
         }
 

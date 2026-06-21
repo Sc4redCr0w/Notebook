@@ -40,13 +40,13 @@ function setupNavbar() {
     const heroBtnDashboard = document.getElementById("hero-btn-dashboard");
 
     if (token) {
-        if (navGuest) navGuest.style.display = "none";
-        if (navAuth) navAuth.style.display = "flex";
+        if (navGuest) navGuest.classList.add("nav-hidden");
+        if (navAuth) navAuth.classList.remove("nav-hidden");
         if (heroBtnJoin) heroBtnJoin.style.display = "none";
         if (heroBtnDashboard) heroBtnDashboard.style.display = "inline-flex";
     } else {
-        if (navGuest) navGuest.style.display = "flex";
-        if (navAuth) navAuth.style.display = "none";
+        if (navGuest) navGuest.classList.remove("nav-hidden");
+        if (navAuth) navAuth.classList.add("nav-hidden");
         if (heroBtnJoin) heroBtnJoin.style.display = "inline-flex";
         if (heroBtnDashboard) heroBtnDashboard.style.display = "none";
     }

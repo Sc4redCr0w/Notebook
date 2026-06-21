@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -118,7 +119,8 @@
             text-align: left;
         }
 
-        .files-table th, .files-table td {
+        .files-table th,
+        .files-table td {
             padding: 1rem 1.25rem;
             border-bottom: 1px solid var(--border-color);
         }
@@ -218,6 +220,7 @@
             .dashboard-layout {
                 grid-template-columns: 1fr;
             }
+
             .upload-card {
                 position: relative;
                 top: 0;
@@ -225,6 +228,7 @@
         }
     </style>
 </head>
+
 <body>
     <script>
         // Inline authentication check before rendering DOM elements
@@ -239,6 +243,15 @@
         <div class="navbar-brand" onclick="window.location.href='index.html'">
             <span class="brand-name">notebook</span>
         </div>
+        <!-- Hamburger Menu Button -->
+        <button class="navbar-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
         <div class="navbar-menu" id="nav-auth">
             <a href="index.html" class="nav-item">Home</a>
             <a href="explore.html" class="nav-item">Explore Notes</a>
@@ -252,8 +265,15 @@
     <div class="dashboard-layout">
         <!-- Sidebar Panel: Upload Document -->
         <div class="upload-card">
-            <h3 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1.5rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-upload-cloud"><polyline points="16 16 12 12 8 16"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path><polyline points="16 16 12 12 8 16"></polyline></svg>
+            <h3
+                style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1.5rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" class="feather feather-upload-cloud">
+                    <polyline points="16 16 12 12 8 16"></polyline>
+                    <line x1="12" y1="12" x2="12" y2="21"></line>
+                    <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+                    <polyline points="16 16 12 12 8 16"></polyline>
+                </svg>
                 Upload Document
             </h3>
 
@@ -275,26 +295,38 @@
             <div class="form-group">
                 <label>Select PDF Document</label>
                 <div class="file-input-wrapper">
-                    <input type="file" id="pdfFile" class="file-input-real" accept=".pdf" onchange="updateFileNameLabel()">
+                    <input type="file" id="pdfFile" class="file-input-real" accept=".pdf"
+                        onchange="updateFileNameLabel()">
                     <div class="file-input-label" id="file-label">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="feather feather-file-text">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
                         <span id="file-name-text">Click or drag PDF here</span>
                     </div>
                 </div>
             </div>
 
-            <button class="btn btn-primary" id="btnUpload" onclick="uploadPDF()" style="width: 100%; margin-top: 1rem;">Upload to S3</button>
+            <button class="btn btn-primary" id="btnUpload" onclick="uploadPDF()"
+                style="width: 100%; margin-top: 1rem;">Upload</button>
 
             <div id="statusBox" class="status-box"></div>
         </div>
 
         <!-- Main Files List Panel -->
         <div class="files-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
                 <h3 style="font-size: 1.4rem; font-weight: 700; color: #fff;">My Notebook Portal</h3>
-                
+
                 <!-- Quick Search -->
-                <input type="text" id="files-search" class="form-control" placeholder="Search my files..." style="max-width: 250px; padding: 0.5rem 1rem;">
+                <input type="text" id="files-search" class="form-control" placeholder="Search my files..."
+                    style="max-width: 250px; padding: 0.5rem 1rem;">
             </div>
 
             <div class="table-responsive">
@@ -310,7 +342,8 @@
                     </thead>
                     <tbody id="filesTableBody">
                         <tr>
-                            <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 3rem;">Loading documents...</td>
+                            <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 3rem;">
+                                Loading documents...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -321,10 +354,12 @@
     <!-- Footer -->
     <footer class="footer-nav">
         <nav class="nav-links">
-            <a href="index.html" class="nav-link">Home</a>
-            <a href="explore.html" class="nav-link">Explore Notes</a>
-            <a href="dashboard.html" class="nav-link">Dashboard</a>
-            <a href="chat.html" class="nav-link">AI Chat</a>
+            <a href="https://github.com/Sc4redCr0w/" class="nav-link" target="_blank" rel="noopener noreferrer" title="GitHub">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-github"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+            </a>
+            <a href="https://www.linkedin.com/in/gaurav-yadav-3961a734b/" class="nav-link" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-linkedin"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+            </a>
         </nav>
     </footer>
 
@@ -421,10 +456,10 @@
                 }
 
                 allFiles = await response.json();
-                
+
                 // Sort files by upload date descending
                 allFiles.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
-                
+
                 renderFilesTable(allFiles);
 
             } catch (error) {
@@ -536,12 +571,19 @@
             }
         }
 
+        function toggleMobileMenu() {
+            const authMenu = document.getElementById("nav-auth");
+            if (authMenu) {
+                authMenu.classList.toggle("active");
+            }
+        }
+
         // Search files in list
         document.getElementById("files-search").addEventListener("input", (e) => {
             const query = e.target.value.toLowerCase().trim();
             const filtered = allFiles.filter(file => {
-                return file.filename.toLowerCase().includes(query) || 
-                       (file.folder && file.folder.toLowerCase().includes(query));
+                return file.filename.toLowerCase().includes(query) ||
+                    (file.folder && file.folder.toLowerCase().includes(query));
             });
             renderFilesTable(filtered);
         });
@@ -553,4 +595,5 @@
         });
     </script>
 </body>
+
 </html>
