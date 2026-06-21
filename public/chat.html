@@ -666,25 +666,15 @@
     <div class="chat-container">
         <!-- Unified Navbar -->
         <nav class="navbar">
-            <div class="navbar-brand">
-                <div class="brand-icon">N</div>
-                <span class="brand-name">Notebook Portal</span>
+            <div class="navbar-brand" onclick="window.location.href='index.html'" style="cursor:pointer;">
+                <div class="brand-icon">O</div>
+                <span class="brand-name">OpenSource Notebook</span>
             </div>
             <div class="navbar-menu">
-                <a href="index.html" class="nav-item">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" class="feather feather-folder">
-                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                    </svg>
-                    Dashboard
-                </a>
-                <a href="chat.html" class="nav-item active">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                    </svg>
-                    AI Assistant
-                </a>
+                <a href="index.html" class="nav-item">Home</a>
+                <a href="explore.html" class="nav-item">Explore Notes</a>
+                <a href="dashboard.html" class="nav-item">Dashboard</a>
+                <a href="chat.html" class="nav-item active">AI Chat</a>
             </div>
             <div class="navbar-user">
                 <div class="user-avatar" id="avatarDisplay">U</div>
@@ -750,10 +740,13 @@
         if (!token) {
             window.location.href = "login.html";
         } else {
-            document.getElementById("userIdDisplay").innerText = userId || "Active User";
-            document.getElementById("displayUsername").innerText = userId || "Active User";
-            if (userId) {
-                document.getElementById("avatarDisplay").innerText = userId.charAt(0).toUpperCase();
+            const userIdDisplayEl = document.getElementById("userIdDisplay");
+            if (userIdDisplayEl) userIdDisplayEl.innerText = userId || "Active User";
+            const displayUsernameEl = document.getElementById("displayUsername");
+            if (displayUsernameEl) displayUsernameEl.innerText = userId || "Active User";
+            const avatarDisplayEl = document.getElementById("avatarDisplay");
+            if (avatarDisplayEl && userId) {
+                avatarDisplayEl.innerText = userId.charAt(0).toUpperCase();
             }
         }
 
