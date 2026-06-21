@@ -92,6 +92,12 @@ JWT_SECRET=your_jwt_signature_secret_key
 PORT=3000
 ```
 
+## 🔑 Test Credentials
+
+For testing and evaluation:
+* **User ID**: `user123`
+* **Password**: `user123`
+
 ---
 
 ## 💻 Running Locally
