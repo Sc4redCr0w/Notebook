@@ -111,7 +111,9 @@ function renderFeaturedNotes(files) {
             : 'Unknown Date';
             
         // Clean filename (strip extension)
-        const cleanName = file.filename.replace(/\.pdf$/i, "");
+        const cleanName = file.filename.replace(/\.(pdf|txt|docx)$/i, "");
+        const ext = file.filename.split('.').pop().toUpperCase();
+        const downloadLabel = `Download ${ext}`;
 
         return `
             <div class="note-card">
@@ -122,7 +124,7 @@ function renderFeaturedNotes(files) {
                 </div>
                 <div class="note-date">Shared on ${dateStr}</div>
                 <div class="note-actions">
-                    <a href="/files/download?key=${encodeURIComponent(file.s3Key)}" class="btn-download" target="_blank">Download PDF</a>
+                    <a href="/files/download?key=${encodeURIComponent(file.s3Key)}" class="btn-download" target="_blank">${downloadLabel}</a>
                 </div>
             </div>
         `;

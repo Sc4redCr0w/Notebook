@@ -293,9 +293,9 @@
             </div>
 
             <div class="form-group">
-                <label>Select PDF Document</label>
+                <label>Select Document (PDF, TXT, DOCX)</label>
                 <div class="file-input-wrapper">
-                    <input type="file" id="pdfFile" class="file-input-real" accept=".pdf"
+                    <input type="file" id="pdfFile" class="file-input-real" accept=".pdf,.txt,.docx"
                         onchange="updateFileNameLabel()">
                     <div class="file-input-label" id="file-label">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -307,7 +307,7 @@
                             <line x1="16" y1="17" x2="8" y2="17"></line>
                             <polyline points="10 9 9 9 8 9"></polyline>
                         </svg>
-                        <span id="file-name-text">Click or drag PDF here</span>
+                        <span id="file-name-text">Click or drag document here</span>
                     </div>
                 </div>
             </div>
@@ -387,7 +387,7 @@
             if (fileInput.files.length > 0) {
                 fileNameText.textContent = fileInput.files[0].name;
             } else {
-                fileNameText.textContent = "Click or drag PDF here";
+                fileNameText.textContent = "Click or drag document here";
             }
         }
 
@@ -486,7 +486,7 @@
                     dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 }
 
-                const cleanName = file.filename.replace(/\.pdf$/i, "");
+                const cleanName = file.filename.replace(/\.(pdf|txt|docx)$/i, "");
                 const isPublic = file.isPublic !== false;
 
                 row.innerHTML = `
@@ -519,7 +519,7 @@
             const btnUpload = document.getElementById("btnUpload");
 
             if (!file) {
-                showStatus("Please select a PDF file first.", "error");
+                showStatus("Please select a document first.", "error");
                 return;
             }
 
